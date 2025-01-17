@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8090
   servlet:
     context-path: /
     encoding:
@@ -11,9 +11,12 @@ spring:
   application:
     name: spring-security-jwt
   datasource:
-    url: jdbc:mysql://localhost:3306/spring_security_jwt
-    username: root
-    password: ${db_password}
+#    url: jdbc:mysql://localhost:3306/spring_security_jwt
+#    username: root
+#    password: ${db_password}
+    url: ${aws_db_url}
+    username: ${aws_db_username}
+    password: ${aws_db_password}
 
     driver-class-name: com.mysql.cj.jdbc.Driver
 
