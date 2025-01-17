@@ -1,5 +1,8 @@
 package com.springsecurityjwt.config;
 
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,7 +14,25 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI openAPI() {
-        return new OpenAPI().info(apiInfo());
+
+        String jwt = "JWT";
+
+        SecurityRequirement securityRequirement = new SecurityRequirement().addList(jwt);
+
+        Components components =
+                new Components()
+                        .addSecuritySchemes(jwt, new SecurityScheme()
+                                .name(jwt)
+                                .type(SecurityScheme.Type.HTTP)
+                                .scheme("bearer")
+                                .bearerFormat("JWT")
+                        );
+
+        return new OpenAPI()
+                .components(new Components())
+                .info(apiInfo())
+                .addSecurityItem(securityRequirement)
+                .components(components);
     }
 
     private Info apiInfo() {

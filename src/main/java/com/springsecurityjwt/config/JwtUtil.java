@@ -19,6 +19,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
+    private static final String BEARER_PREFIX = "Bearer ";
     private static final long TOKEN_TIME = 60 * 60 * 1000L;
 
     @Value("${jwt.secret.key}")
@@ -36,7 +37,8 @@ public class JwtUtil {
     public String createToken(Long userId, String nsername, String nickname, UserRole userRole) {
         Date date = new Date();
 
-        return Jwts.builder()
+        return BEARER_PREFIX
+                + Jwts.builder()
                 .setSubject(String.valueOf(userId))
                 .claim("username", nsername)
                 .claim("nickname", nickname)
@@ -48,7 +50,7 @@ public class JwtUtil {
     }
 
     public String substringToken(String tokenValue) {
-        if (StringUtils.hasText(tokenValue)) {
+        if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PREFIX)) {
             return tokenValue;
         }
         throw new IllegalArgumentException("Token is missing or invalid");

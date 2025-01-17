@@ -57,7 +57,7 @@ public class AuthServiceTest {
             given(userRepository.save(any(User.class))).willReturn(user);
 
             // when
-            SignupRequest request = new SignupRequest(username, nickname, password);
+            SignupRequest request = new SignupRequest(username, password, nickname);
             SignupResponse response = authService.signup(request);
 
             // then
