@@ -1,9 +1,8 @@
 package com.springsecurityjwt.auth.service;
 
-import com.springsecurityjwt.auth.dto.SigninRequest;
-import com.springsecurityjwt.auth.dto.SigninResponse;
-import com.springsecurityjwt.auth.dto.SignupRequest;
-import com.springsecurityjwt.auth.dto.SignupResponse;
+import com.springsecurityjwt.auth.dto.*;
+import com.springsecurityjwt.auth.entity.RefreshToken;
+import com.springsecurityjwt.auth.repository.RefreshTokenRepository;
 import com.springsecurityjwt.config.JwtUtil;
 import com.springsecurityjwt.config.PasswordEncoder;
 import com.springsecurityjwt.user.entity.User;
@@ -13,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -20,6 +20,7 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class AuthService {
 
+    private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
@@ -52,8 +53,30 @@ public class AuthService {
             throw new IllegalArgumentException("Wrong password");
         }
 
-        String token = jwtUtil.createToken(user.getId(), user.getNickname(), user.getNickname(), user.getUserRole());
+        String accessToken = jwtUtil.createToken(user.getId(), user.getUsername(), user.getNickname(), user.getUserRole());
+        String refreshToken = jwtUtil.createRefreshToken(user.getId());
 
-        return new SigninResponse(token);
+        refreshTokenRepository.deleteByUserId(user.getId());
+        refreshTokenRepository.flush();
+        refreshTokenRepository.save(new RefreshToken(user.getId(), refreshToken, LocalDateTime.now().plusDays(7)));
+
+        return new SigninResponse(accessToken, refreshToken);
+    }
+
+    @Transactional
+    public RefreshTokenResponse reissueAccessToken(RefreshTokenRequest refreshTokenRequest) {
+        RefreshToken tokenEntity = refreshTokenRepository.findByToken(refreshTokenRequest.getRefreshToken())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid refresh token"));
+
+        if (tokenEntity.getExpirationDate().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Refresh token has expired");
+        }
+
+        User user = userRepository.findById(tokenEntity.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        String newToken = jwtUtil.createToken(user.getId(), user.getUsername(), user.getNickname(), user.getUserRole());
+
+        return new RefreshTokenResponse(newToken);
     }
 }

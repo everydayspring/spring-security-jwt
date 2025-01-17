@@ -59,4 +59,16 @@ public class JwtUtil {
     public Claims extractClaims(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
     }
+
+    public String createRefreshToken(Long userId) {
+        Date now = new Date();
+        long refreshTokenValidity = 7 * 24 * 60 * 60 * 1000L; // 7일
+
+        return Jwts.builder()
+                .setSubject(String.valueOf(userId))
+                .setExpiration(new Date(now.getTime() + refreshTokenValidity))
+                .setIssuedAt(now)
+                .signWith(key, signatureAlgorithm)
+                .compact();
+    }
 }

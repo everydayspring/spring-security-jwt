@@ -37,7 +37,7 @@ public class SecurityConfig {
                 .logout(AbstractHttpConfigurer::disable) // LogoutFilter 비활성화
                 .authorizeHttpRequests(
                         auth -> auth
-                                .requestMatchers("/auth/signin", "/auth/signup", "/v3/api-docs/**", "/swagger-ui/**", "/api-test/**").permitAll()
+                                .requestMatchers("/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/api-test/**").permitAll()
                                 .anyRequest().authenticated())
                 .build();
     }
