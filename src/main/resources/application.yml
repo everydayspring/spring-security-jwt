@@ -27,6 +27,12 @@ spring:
         use_sql_comments: true
         dialect: org.hibernate.dialect.MySQL8Dialect
 
+springdoc:
+  swagger-ui:
+    path: /api-test
+    operationsSorter: alpha
+    tags-sorter: alpha
+
 jwt:
   secret:
     key: ${SECRET_KEY}
