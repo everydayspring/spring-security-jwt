@@ -23,7 +23,7 @@ public class AuthUser {
         this.role = role;
     }
 
-    public Collection<? extends GrantedAuthority> getAuthorities() {
+    public Collection<GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority(role.getAuthority()));
     }
 }
